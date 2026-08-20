@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The broker who speaks DVA. | JGO Lending</title>
+<meta name="description" content="Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Montserrat:wght@700;800;900&display=swap">
+<script>
+  const META_PIXEL_ID = "1427947952531869";
+  const PIXEL_ACTIVE = META_PIXEL_ID !== "REPLACE_ME";
+  !function(f,b,e,v,n,t,s)
+  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+  n.queue=[];t=b.createElement(e);t.async=!0;
+  t.src=v;s=b.getElementsByTagName(e)[0];
+  s.parentNode.insertBefore(t,s)}(window, document,'script',
+  'https://connect.facebook.net/en_US/fbevents.js');
+  if (PIXEL_ACTIVE) {
+    fbq('init', META_PIXEL_ID);
+    fbq('track', 'PageView');
+  }
+
+  const FORM_ENDPOINT = "REPLACE_ME"; // [client to provide]
+
+  let formStarted = false;
+  let leadFired = false;
+
+  document.addEventListener('DOMContentLoaded', function(){
+    const form = document.getElementById('lead-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const formError = document.querySelector('.form-error');
+    const formSuccess = document.querySelector('.form-success');
+    const successHeading = formSuccess.querySelector('h3');
+
+    form.addEventListener('focusin', function(){
+      if (!formStarted){
+        formStarted = true;
+        if (PIXEL_ACTIVE && typeof fbq === 'function'){
+          fbq('trackCustom', 'FormStart');
+        }
+      }
+    });
+
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+
+      const companyField = document.getElementById('company');
+      if (companyField.value){
+        form.setAttribute('hidden', '');
+        formSuccess.removeAttribute('hidden');
+        successHeading.focus();
+        return;
+      }
+
+      formError.setAttribute('hidden', '');
+      submitBtn.disabled = true;
+      form.setAttribute('aria-busy', 'true');
+
+      const formData = new FormData(form);
+      formData.delete('company');
+
+      try{
+        const response = await fetch(FORM_ENDPOINT, {
+          method: 'POST',
+          body: formData,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (!response.ok){
+          throw new Error('Non-OK response');
+        }
+
+        form.setAttribute('hidden', '');
+        formSuccess.removeAttribute('hidden');
+        successHeading.focus();
+
+        if (!leadFired && PIXEL_ACTIVE && typeof fbq === 'function'){
+          leadFired = true;
+          const eventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random();
+          fbq('track', 'Lead', { content_name: 'veterans-enquiry' }, { eventID: eventId });
+        }
+      } catch (err){
+        formError.removeAttribute('hidden');
+        submitBtn.disabled = false;
+        form.removeAttribute('aria-busy');
+      }
+    });
+  });
+</script>
+
+<noscript><img height="1" width="1" style="display:none" alt=""
+  src="https://www.facebook.com/tr?id=1427947952531869&ev=PageView&noscript=1"
+/></noscript>
+<style>
+  :root{
+    --jgo-black:      #0A0A0A;
+    --jgo-charcoal:   #282828;
+    --jgo-white:      #FFFFFF;
+    --jgo-gold-deep:  #9D722D;
+    --jgo-gold-mid:   #D8BD79;
+    --jgo-gold-bright:#E4C377;
+    --jgo-gold-light: #FAF7C8;
+    --text-muted: #B3B3B3;
+    --line: rgba(255,255,255,0.14);
+    color-scheme: dark;
+  }
+
+  *, *::before, *::after{ box-sizing: border-box; }
+
+  html{ scroll-behavior: smooth; }
+
+  @media (prefers-reduced-motion: reduce){
+    html{ scroll-behavior: auto; }
+  }
+
+  body{
+    margin: 0;
+    background: radial-gradient(ellipse 120% 90% at 50% 42%, #282828 0%, #161616 55%, #0A0A0A 100%);
+    background-color: var(--jgo-black);
+    color: var(--jgo-white);
+    font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3{
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    color: var(--jgo-white);
+  }
+
+  p{ margin: 0; }
+
+  .wrap{
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 2.5rem);
+  }
+
+  .section{
+    padding-block: clamp(4.5rem, 2.5rem + 8vw, 7.5rem);
+  }
+
+  .measure{ max-width: 42rem; }
+
+  .eyebrow{
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--jgo-gold-mid);
+    margin: 0;
+  }
+
+  h1{
+    font-size: clamp(2.25rem, 1.19rem + 4.5vw, 3.75rem);
+    font-weight: 900;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+
+  h2{
+    font-size: clamp(1.75rem, 1.05rem + 3vw, 2.75rem);
+    font-weight: 800;
+    line-height: 1.1;
+  }
+
+  h3{
+    font-size: clamp(1.1875rem, 1.05rem + 0.6vw, 1.375rem);
+    font-weight: 700;
+    line-height: 1.25;
+  }
+
+  .body-text{
+    font-size: clamp(1rem, 0.91rem + 0.38vw, 1.125rem);
+    font-weight: 400;
+    color: var(--jgo-white);
+  }
+
+  .small-text{
+    font-size: clamp(0.8125rem, 0.77rem + 0.19vw, 0.875rem);
+    color: var(--text-muted);
+  }
+
+  /* Gold gradient text */
+  .gx{
+    color: var(--jgo-white);
+  }
+  @supports (background-clip: text) or (-webkit-background-clip: text){
+    .gx{
+      background: linear-gradient(180deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  /* Rules */
+  .rule{
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(90deg, transparent 0%, #9D722D 18%, #E4C377 50%, #9D722D 82%, transparent 100%);
+  }
+
+  .cred-rule{
+    width: 56px;
+    height: 3px;
+    background: linear-gradient(90deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Buttons */
+  .btn{
+    display: inline-block;
+    background: linear-gradient(180deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+    color: var(--jgo-black);
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: 0.9375rem;
+    letter-spacing: 0.06em;
+    padding: 1rem 2.5rem;
+    border-radius: 2px;
+    border: 0;
+    min-height: 56px;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .btn:hover{ filter: brightness(1.06); }
+  .btn:disabled{ cursor: not-allowed; filter: brightness(0.92); }
+
+  .btn-hero{
+    width: 100%;
+    max-width: 20rem;
+  }
+  @media (min-width: 480px){
+    .btn-hero{ width: auto; }
+  }
+
+  .btn-form{
+    width: 100%;
+  }
+
+  /* Focus ring */
+  :focus-visible{
+    outline: 3px solid var(--jgo-gold-mid);
+    outline-offset: 2px;
+  }
+  input:focus, select:focus, textarea:focus, summary:focus, button:focus{
+    outline: 3px solid var(--jgo-gold-mid);
+    outline-offset: 2px;
+  }
+
+  /* Hero */
+  .hero{
+    min-height: 100vh;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 1.5rem 0 3rem;
+  }
+
+  .hero-logo{
+    height: 40px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  @media (min-width: 900px){
+    .hero-logo{ height: 52px; }
+  }
+  .logo-img{
+    display: block;
+    height: 40px;
+    width: auto;
+  }
+  @media (min-width: 900px){
+    .logo-img{ height: 52px; }
+  }
+
+  .hero .eyebrow{ margin-bottom: 0.75rem; }
+  .hero h1{ margin-bottom: 1.25rem; }
+  .hero .hero-sub{ margin-bottom: 1.75rem; max-width: 38rem; }
+  .hero .trust-line{ margin-top: 1rem; max-width: 26rem; }
+
+  /* Section 2 - problem */
+  .s-problem .eyebrow-spacer{ display: none; }
+  .s-problem h2{ margin-bottom: 1.25rem; }
+  .s-problem .intro{ margin-bottom: 2rem; }
+  .problem-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .problem-list li{
+    margin-top: 1.75rem;
+  }
+  .problem-list li:first-child{ margin-top: 0; }
+  @media (min-width: 900px){
+    .problem-list li{ margin-top: 2rem; }
+  }
+
+  /* Section 3 - file */
+  .s-file h2{ margin-bottom: 2rem; }
+  .cred-list{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cred-list li{
+    margin-top: 1.75rem;
+  }
+  .cred-list li:first-child{ margin-top: 0; }
+  @media (min-width: 900px){
+    .cred-list li{ margin-top: 2rem; }
+  }
+  .cred-item{
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1.055rem + 1.9vw, 2.125rem);
+    color: var(--jgo-white);
+  }
+  .s-file .closing{ margin-top: 2.5rem; }
+
+  .s-file.has-portrait .file-grid{
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 4rem;
+    align-items: start;
+  }
+
+  /* Section 4 - speak */
+  .s-speak h2{ margin-bottom: 1.25rem; }
+
+  /* Section 5 - FAQ */
+  .s-faq h2{ margin-bottom: 2rem; }
+  .faq-list{
+    border-top: 1px solid var(--line);
+  }
+  .faq-item{
+    border-bottom: 1px solid var(--line);
+  }
+  .faq-item summary{
+    cursor: pointer;
+    list-style: none;
+    padding: 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .faq-item summary::-webkit-details-marker{ display: none; }
+  .faq-item summary::after{
+    content: "+";
+    color: var(--text-muted);
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary::after{
+    content: "\2212";
+  }
+  .faq-item .faq-answer{
+    padding: 0 0 1.5rem;
+    max-width: 42rem;
+  }
+
+  /* Section 6 - donation */
+  .s-donation h2{ margin-bottom: 2.5rem; }
+  .donation-steps{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+  }
+  .donation-steps li{
+    counter-increment: step;
+    margin-top: 2rem;
+  }
+  .donation-steps li:first-child{ margin-top: 0; }
+  .donation-steps li::before{
+    content: counter(step);
+    display: block;
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    color: var(--jgo-gold-mid);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .s-donation .footnote{ margin-top: 2.5rem; }
+  @media (min-width: 900px){
+    .donation-steps{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+    }
+    .donation-steps li{ margin-top: 0; }
+  }
+
+  /* Section 8 - form */
+  .s-enquire{ scroll-margin-top: 1.5rem; }
+  #enquire{ scroll-margin-top: 1.5rem; }
+  .s-enquire h2{ margin-bottom: 1.25rem; }
+  .s-enquire .intro{ margin-bottom: 2rem; }
+
+  form{
+    max-width: 40rem;
+  }
+
+  .field{
+    margin-top: 1.5rem;
+  }
+  .field:first-child{ margin-top: 0; }
+
+  label{
+    display: block;
+    font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 600;
+    font-size: clamp(0.8125rem, 0.77rem + 0.19vw, 0.875rem);
+    margin-bottom: 0.5rem;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  select,
+  textarea{
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    color: var(--jgo-white);
+    font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 1rem;
+    padding: 0.875rem 1rem;
+  }
+
+  textarea{
+    min-height: 6rem;
+    resize: vertical;
+  }
+
+  .checkbox-field{
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    margin-top: 1.5rem;
+  }
+  .checkbox-field input[type="checkbox"]{
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+    margin-top: 0.15rem;
+  }
+  .checkbox-field label{
+    margin-bottom: 0;
+    font-weight: 400;
+  }
+
+  .hp{
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .form-error{
+    margin-top: 1.5rem;
+    color: var(--jgo-gold-bright);
+  }
+
+  .form-actions{
+    margin-top: 2rem;
+  }
+
+  .form-success h3{ margin-bottom: 1rem; }
+  .form-success p{ max-width: 40rem; }
+
+  /* Footer */
+  .footer{
+    padding-block: clamp(2.5rem, 2rem + 3vw, 3.5rem);
+  }
+  .footer .rule{ margin-bottom: clamp(2.5rem, 2rem + 3vw, 3.5rem); }
+  .footer p{
+    font-size: 13px;
+    color: var(--text-muted);
+    max-width: 38rem;
+  }
+  .footer p + p{ margin-top: 1rem; }
+  .footer a{ color: var(--text-muted); }
+</style>
+</head>
+<body>
+<main>
+
+<section class="hero" id="hero">
+  <div class="wrap" style="width:100%;">
+    <div class="hero-logo" aria-hidden="true">
+      <!-- LOGO: uncomment when assets/jgo-logo-white.png is supplied. Do not recreate, redraw or substitute this logo. -->
+      <!-- <img src="assets/jgo-logo-white.png" alt="JGO Lending" class="logo-img"> -->
+    </div>
+    <p class="eyebrow">VETERANS HOME LOANS · AUSTRALIA-WIDE</p>
+    <h1>The broker who <span class="gx">speaks DVA.</span></h1>
+    <p class="body-text hero-sub">Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.</p>
+    <a href="#enquire" class="btn btn-hero">Get Started</a>
+    <p class="small-text trust-line">Mention the Soldier On post when you enquire - $600 goes to Soldier On when your loan settles.</p>
+  </div>
+</section>
+
+<section class="section s-problem" id="problem">
+  <div class="wrap">
+    <h2>Your income isn't the problem. <span class="gx">The translation is.</span></h2>
+    <p class="body-text measure intro">Most lenders don't see many veteran files. That unfamiliarity can read as risk on a loan application, and it isn't.</p>
+    <ul class="problem-list measure">
+      <li class="body-text">Incapacity payments explained as income, not as a question mark.</li>
+      <li class="body-text">CSC pensions presented the way an assessor needs to see them.</li>
+      <li class="body-text">DVA entitlements treated as what they are - income.</li>
+    </ul>
+  </div>
+</section>
+
+<div class="rule" aria-hidden="true"></div>
+
+<section class="section s-file" id="file">
+  <div class="wrap">
+    <div class="file-grid">
+      <div>
+        <h2>Four careers. <span class="gx">One loan file.</span></h2>
+        <ul class="cred-list">
+          <li>
+            <div class="cred-rule" aria-hidden="true"></div>
+            <div class="cred-item">Army veteran</div>
+          </li>
+          <li>
+            <div class="cred-rule" aria-hidden="true"></div>
+            <div class="cred-item">Ex-Westpac, lender side</div>
+          </li>
+          <li>
+            <div class="cred-rule" aria-hidden="true"></div>
+            <div class="cred-item">Bachelor of Laws</div>
+          </li>
+          <li>
+            <div class="cred-rule" aria-hidden="true"></div>
+            <div class="cred-item">Built 17 apartments</div>
+          </li>
+        </ul>
+        <p class="body-text measure closing">Most brokers have seen one side of a loan. James O'Brien has seen all of them - as a veteran who has lived on ADF pay, as a Westpac lender who assessed files from the other side of the desk, as a law graduate who reads the fine print for sport, and as a developer who has built with borrowed money.</p>
+      </div>
+      <!-- PORTRAIT: uncomment and add class "has-portrait" to #file when assets/james-portrait.jpg is supplied. Do not substitute stock imagery. -->
+      <!--
+      <figure class="portrait">
+        <img src="assets/james-portrait.jpg" alt="James O'Brien">
+      </figure>
+      -->
+    </div>
+  </div>
+</section>
+
+<div class="rule" aria-hidden="true"></div>
+
+<section class="section s-speak" id="speak">
+  <div class="wrap">
+    <h2><span class="gx">Fluent in DVA.</span></h2>
+    <p class="body-text measure" style="margin-top:1.25rem;">Incapacity payments. CSC pensions. DHOAS. Veteran-owned, and accredited with a DHOAS provider - so the acronyms don't need decoding before the conversation starts.</p>
+  </div>
+</section>
+
+<div class="rule" aria-hidden="true"></div>
+
+<section class="section s-faq" id="faq">
+  <div class="wrap">
+    <h2>Questions people <span class="gx">actually ask</span></h2>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">Can I even get a loan on DVA income?</h3></summary>
+        <p class="body-text faq-answer">Plenty of veterans assume the answer is no before anyone has looked. The honest answer is that it depends on the file - which is why the first conversation is about reading the file. No promises before the numbers, and no assumptions either.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">What does it cost me?</h3></summary>
+        <p class="body-text faq-answer">Nothing for the conversation. Brokers are generally paid by the lender on settlement, and anything that applies to your situation is explained in writing before you commit to anything.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">How does the Soldier On donation work?</h3></summary>
+        <p class="body-text faq-answer">It's tied to the ad, not to every loan. If you saw the Soldier On post and mention it when you enquire, JGO Lending donates $600 to Soldier On when your loan settles. It comes from our side, never from your pocket, and nothing is priced into your loan to cover it.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">What happens after I send this?</h3></summary>
+        <p class="body-text faq-answer">James calls you at a time that suits. You talk through what you're working with and whether the numbers stack up. If it isn't the right time, he'll say so.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<div class="rule" aria-hidden="true"></div>
+
+<section class="section s-donation" id="donation">
+  <div class="wrap">
+    <h2>Mention the post. <span class="gx">$600 to Soldier On.</span></h2>
+    <ol class="donation-steps">
+      <li><h3>You saw the ad</h3></li>
+      <li><h3>Mention it when you enquire</h3></li>
+      <li><h3>$600 to Soldier On when your loan settles</h3></li>
+    </ol>
+    <p class="small-text footnote">From our side. Never from your pocket.</p>
+  </div>
+</section>
+
+<div class="rule" aria-hidden="true"></div>
+
+<!-- TESTIMONIALS: enable when real, attributable veteran testimonials are supplied -->
+<!--
+<section id="testimonials" class="section s-testimonials">
+  <div class="wrap">
+    <h2>What veterans say</h2>
+    <div class="testimonial-list">
+      <figure class="testimonial-item">
+        <blockquote class="body-text"></blockquote>
+        <figcaption class="small-text"></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+-->
+
+<section class="section s-enquire" id="enquire">
+  <div class="wrap">
+    <h2>Five short questions. <span class="gx">About two minutes.</span></h2>
+    <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
+
+    <form id="lead-form" method="post">
+      <div class="hp" aria-hidden="true">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" required autocomplete="tel">
+      </div>
+
+      <div class="field">
+        <label for="goal">What are you looking to do?</label>
+        <select id="goal" name="goal" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="Buy my first home">Buy my first home</option>
+          <option value="Buy my next home">Buy my next home</option>
+          <option value="Refinance">Refinance</option>
+          <option value="Invest">Invest</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="service_status">Your service status</label>
+        <select id="service_status" name="service_status" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="Ex-serving">Ex-serving</option>
+          <option value="Currently serving">Currently serving</option>
+          <option value="Partner of a veteran">Partner of a veteran</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="notes">Anything we should know?</label>
+        <textarea id="notes" name="notes"></textarea>
+      </div>
+
+      <div class="checkbox-field">
+        <input type="checkbox" id="soldier_on" name="soldier_on">
+        <label for="soldier_on">I saw the Soldier On post</label>
+      </div>
+
+      <p class="form-error small-text" role="alert" hidden>That didn't send. Try again, or email [EMAIL - client to provide].</p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-form" id="submit-btn">Get Started</button>
+      </div>
+    </form>
+
+    <div class="form-success" hidden>
+      <h3 tabindex="-1">Thanks - that's the hard part done.</h3>
+      <p class="body-text">James will be in touch shortly. If you mentioned the Soldier On post, $600 goes to them when your loan settles.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="rule" aria-hidden="true"></div>
+    <p>JGO Lending &middot; James O'Brien<br>
+    Credit Representative Number [CR NUMBER - client to provide]<br>
+    of [AGGREGATOR LEGAL NAME - client to provide], Australian Credit Licence [ACL NUMBER - client to provide]</p>
+    <p>The information on this page is general in nature and does not take your objectives, financial situation or needs into account. All applications are subject to lender assessment, and approval is not guaranteed.</p>
+    <p><a href="[Privacy Policy link - client to provide URL]">[Privacy Policy link - client to provide URL]</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
