@@ -1,2 +1,19 @@
-# Secret - holds the Resend API key. Never commit.
+# Secrets - jgo-config.php holds the Resend API key. Never commit it.
 jgo-config.php
+*config.local.php
+.env
+.env.*
+*.pem
+*.key
+
+# Client-supplied binary assets are delivered separately, not version controlled
+veterans/assets/*
+!veterans/assets/.gitkeep
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.vscode/
+.idea/
