@@ -9,6 +9,7 @@ jgo-config.php
 # Client-supplied binary assets are delivered separately, not version controlled
 veterans/assets/*
 !veterans/assets/.gitkeep
+!veterans/assets/james-portrait.jpg
 
 # OS and editor noise
 .DS_Store
