@@ -497,6 +497,22 @@
   .faq-item[open] summary::after{ content: "\2212"; }
   .faq-item .faq-answer{ padding: 0 0 1.5rem; max-width: 42rem; }
 
+  /* Section 7 - testimonials */
+  .s-testimonials h2{ margin-bottom: 2rem; }
+  .testimonial-list{
+    display: grid;
+    gap: 2.5rem;
+  }
+  @media (min-width: 900px){
+    .testimonial-list{
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+      align-items: start;
+    }
+  }
+  .testimonial-item{ margin: 0; }
+  .testimonial-item blockquote{ margin: 0 0 1rem; }
+
   /* Section 6 - donation */
   .s-donation h2{ margin-bottom: 2.5rem; }
   .donation-steps{
@@ -749,32 +765,35 @@
   </div>
 </section>
 
-<!-- TESTIMONIALS: enable when real, attributable veteran testimonials are supplied.
-
-     To switch on: delete this comment wrapper and replace each quote, name and
-     suburb with a real, attributable testimonial that the person has agreed to
-     have published. Add or remove <figure> blocks to match how many you have.
-
-     Do not write placeholder quotes, do not paraphrase something someone said
-     verbally, and do not add star ratings or review counts unless they are real
-     and verifiable. Fabricated testimonials breach Australian Consumer Law.
-
+<!-- TESTIMONIALS: real Facebook recommendations from the James O'Brien -
+     Mortgage Broker page, June 2026, quoted VERBATIM including punctuation.
+     Do not edit, trim or paraphrase a quote. Headed "What clients say", not
+     "What veterans say", because the reviewers' service status is not stated
+     in the reviews. Add veteran quotes here when settled veteran clients
+     supply them. No star graphics: Facebook uses recommendations, not stars,
+     and inventing a rating breaches Australian Consumer Law. -->
 <section class="section s-testimonials" id="testimonials">
   <div class="wrap">
-    <h2>What veterans <span class="gx">say</span></h2>
+    <h2>What clients <span class="gx">say</span></h2>
     <div class="testimonial-list">
       <figure class="testimonial-item">
-        <blockquote class="body-text">QUOTE</blockquote>
-        <figcaption class="small-text">NAME, SUBURB</figcaption>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <blockquote class="body-text">James made the entire finance process very simple &amp; stress free. He was professional, responsive &amp; always available to answer any questions. 10/10 highly recommend James.</blockquote>
+        <figcaption class="small-text">Dan Lincoln &middot; Facebook review, June 2026</figcaption>
       </figure>
       <figure class="testimonial-item">
-        <blockquote class="body-text">QUOTE</blockquote>
-        <figcaption class="small-text">NAME, SUBURB</figcaption>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <blockquote class="body-text">We couldn't recommend James highly enough. From start to finish, he was professional, knowledgeable, and genuinely invested in helping us achieve our financial goals.<br><br>What really sets James apart is his personal experience in property development. Having someone who understands property from both the finance and development side gave us confidence that we were being offered finance that best suited our direct needs.</blockquote>
+        <figcaption class="small-text">Brendan Kent &middot; Facebook review, June 2026</figcaption>
+      </figure>
+      <figure class="testimonial-item">
+        <div class="cred-rule" aria-hidden="true"></div>
+        <blockquote class="body-text">James was extremely professional and efficient when it came to helping us refinance our home loan. Highly recommended</blockquote>
+        <figcaption class="small-text">Mitch Robins &middot; Facebook review, June 2026</figcaption>
       </figure>
     </div>
   </div>
 </section>
--->
 
 <!-- FORM, position 2 of 2. Same fields, same handler, for readers who scroll. -->
 <section class="section s-enquire" id="enquire-bottom">
