@@ -25,71 +25,93 @@
     fbq('track', 'PageView');
   }
 
-  const FORM_ENDPOINT = "send.php"; // same directory as this page
+  const FORM_ENDPOINT = "send.php";
 
+  /* Both guards are module scope, not storage, and are shared across the two
+     form instances. FormStart fires once per page view no matter which form
+     the visitor touches first; Lead fires once per successful submission. */
   let formStarted = false;
   let leadFired = false;
 
   document.addEventListener('DOMContentLoaded', function(){
-    const form = document.getElementById('lead-form');
-    const submitBtn = document.getElementById('submit-btn');
-    const formError = document.querySelector('.form-error');
-    const formSuccess = document.querySelector('.form-success');
-    const successHeading = formSuccess.querySelector('h3');
 
-    form.addEventListener('focusin', function(){
-      if (!formStarted){
-        formStarted = true;
-        if (PIXEL_ACTIVE && typeof fbq === 'function'){
-          fbq('trackCustom', 'FormStart');
+    document.querySelectorAll('form.lead-form').forEach(function(form){
+      const scope       = form.closest('.s-enquire');
+      const submitBtn   = form.querySelector('.submit-btn');
+      const formError   = scope.querySelector('.form-error');
+      const formSuccess = scope.querySelector('.form-success');
+      const successHeading = formSuccess.querySelector('h3');
+      const companyField   = form.querySelector('input[name="company"]');
+
+      form.addEventListener('focusin', function(){
+        if (!formStarted){
+          formStarted = true;
+          if (PIXEL_ACTIVE && typeof fbq === 'function'){
+            fbq('trackCustom', 'FormStart');
+          }
         }
-      }
+      });
+
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+
+        if (companyField.value){
+          form.setAttribute('hidden', '');
+          formSuccess.removeAttribute('hidden');
+          successHeading.focus();
+          return;
+        }
+
+        formError.setAttribute('hidden', '');
+        submitBtn.disabled = true;
+        form.setAttribute('aria-busy', 'true');
+
+        const formData = new FormData(form);
+        formData.delete('company');
+
+        try{
+          const response = await fetch(FORM_ENDPOINT, {
+            method: 'POST',
+            body: formData,
+            headers: { 'Accept': 'application/json' }
+          });
+
+          if (!response.ok){
+            throw new Error('Non-OK response');
+          }
+
+          form.setAttribute('hidden', '');
+          formSuccess.removeAttribute('hidden');
+          successHeading.focus();
+
+          if (!leadFired && PIXEL_ACTIVE && typeof fbq === 'function'){
+            leadFired = true;
+            const eventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random();
+            fbq('track', 'Lead', { content_name: 'veterans-enquiry' }, { eventID: eventId });
+          }
+        } catch (err){
+          formError.removeAttribute('hidden');
+          submitBtn.disabled = false;
+          form.removeAttribute('aria-busy');
+        }
+      });
     });
 
-    form.addEventListener('submit', async function(e){
-      e.preventDefault();
-
-      const companyField = document.getElementById('company');
-      if (companyField.value){
-        form.setAttribute('hidden', '');
-        formSuccess.removeAttribute('hidden');
-        successHeading.focus();
-        return;
-      }
-
-      formError.setAttribute('hidden', '');
-      submitBtn.disabled = true;
-      form.setAttribute('aria-busy', 'true');
-
-      const formData = new FormData(form);
-      formData.delete('company');
-
-      try{
-        const response = await fetch(FORM_ENDPOINT, {
-          method: 'POST',
-          body: formData,
-          headers: { 'Accept': 'application/json' }
+    /* Sticky mobile CTA. It hides whenever a form is on screen, so it can
+       never sit over the form the visitor is trying to fill in. */
+    const stickyBar = document.getElementById('sticky-cta');
+    const forms = document.querySelectorAll('.s-enquire');
+    if (stickyBar && forms.length && 'IntersectionObserver' in window){
+      const visible = new Set();
+      const observer = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting){ visible.add(entry.target); }
+          else { visible.delete(entry.target); }
         });
-
-        if (!response.ok){
-          throw new Error('Non-OK response');
-        }
-
-        form.setAttribute('hidden', '');
-        formSuccess.removeAttribute('hidden');
-        successHeading.focus();
-
-        if (!leadFired && PIXEL_ACTIVE && typeof fbq === 'function'){
-          leadFired = true;
-          const eventId = (crypto.randomUUID && crypto.randomUUID()) || String(Date.now()) + Math.random();
-          fbq('track', 'Lead', { content_name: 'veterans-enquiry' }, { eventID: eventId });
-        }
-      } catch (err){
-        formError.removeAttribute('hidden');
-        submitBtn.disabled = false;
-        form.removeAttribute('aria-busy');
-      }
-    });
+        stickyBar.classList.toggle('is-hidden', visible.size > 0);
+      }, { threshold: 0 });
+      forms.forEach(function(f){ observer.observe(f); });
+    }
   });
 </script>
 
@@ -98,6 +120,7 @@
 /></noscript>
 <style>
   :root{
+    /* Brand tokens, unchanged */
     --jgo-black:      #0A0A0A;
     --jgo-charcoal:   #282828;
     --jgo-white:      #FFFFFF;
@@ -105,9 +128,20 @@
     --jgo-gold-mid:   #D8BD79;
     --jgo-gold-bright:#E4C377;
     --jgo-gold-light: #FAF7C8;
-    --text-muted: #B3B3B3;
-    --line: rgba(255,255,255,0.14);
-    color-scheme: dark;
+
+    /* Light-body system. Neutrals carry a slight warm bias toward the gold
+       so they read as chosen rather than default grey. */
+    --ground:      #FFFFFF;
+    --ground-alt:  #F7F5F1;
+    --ink:         #1A1A1A;
+    --ink-soft:    #55504A;
+    --line-light:  rgba(26,24,22,0.14);
+
+    /* Dark hero only */
+    --line-dark:   rgba(255,255,255,0.14);
+    --text-muted:  #B3B3B3;
+
+    color-scheme: light;
   }
 
   *, *::before, *::after{ box-sizing: border-box; }
@@ -120,9 +154,8 @@
 
   body{
     margin: 0;
-    background: radial-gradient(ellipse 120% 90% at 50% 42%, #282828 0%, #161616 55%, #0A0A0A 100%);
-    background-color: var(--jgo-black);
-    color: var(--jgo-white);
+    background: var(--ground);
+    color: var(--ink);
     font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-weight: 400;
     line-height: 1.6;
@@ -132,7 +165,8 @@
   h1, h2, h3{
     font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0;
-    color: var(--jgo-white);
+    color: var(--ink);
+    text-wrap: balance;
   }
 
   p{ margin: 0; }
@@ -144,8 +178,10 @@
   }
 
   .section{
-    padding-block: clamp(4.5rem, 2.5rem + 8vw, 7.5rem);
+    padding-block: clamp(3.5rem, 2rem + 6vw, 6rem);
   }
+
+  .section-alt{ background: var(--ground-alt); }
 
   .measure{ max-width: 42rem; }
 
@@ -155,7 +191,7 @@
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    color: var(--jgo-gold-mid);
+    color: var(--jgo-gold-deep);
     margin: 0;
   }
 
@@ -181,20 +217,32 @@
   .body-text{
     font-size: clamp(1rem, 0.91rem + 0.38vw, 1.125rem);
     font-weight: 400;
-    color: var(--jgo-white);
+    color: var(--ink);
   }
 
   .small-text{
     font-size: clamp(0.8125rem, 0.77rem + 0.19vw, 0.875rem);
-    color: var(--text-muted);
+    color: var(--ink-soft);
   }
 
-  /* Gold gradient text */
-  .gx{
-    color: var(--jgo-white);
-  }
+  /* ------------------------------------------------------------------
+     The gold gradient.
+
+     On the dark hero it is the full signature gradient from the brief.
+     On white, the pale end of that gradient is invisible, so light
+     sections use the deep half of the same ramp. Same gold, still a
+     gradient, but it holds contrast on a white ground.
+     ------------------------------------------------------------------ */
+  .gx{ color: var(--jgo-gold-deep); }
+
   @supports (background-clip: text) or (-webkit-background-clip: text){
     .gx{
+      background: linear-gradient(180deg, #C9932F 0%, #9D722D 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero .gx{
       background: linear-gradient(180deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
       -webkit-background-clip: text;
       background-clip: text;
@@ -206,13 +254,13 @@
   .rule{
     height: 1px;
     width: 100%;
-    background: linear-gradient(90deg, transparent 0%, #9D722D 18%, #E4C377 50%, #9D722D 82%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, #9D722D 18%, #C9932F 50%, #9D722D 82%, transparent 100%);
   }
 
   .cred-rule{
     width: 56px;
     height: 3px;
-    background: linear-gradient(90deg, #FAF7C8 0%, #E4C377 42%, #9D722D 100%);
+    background: linear-gradient(90deg, #C9932F 0%, #9D722D 100%);
     margin-bottom: 0.75rem;
   }
 
@@ -236,37 +284,39 @@
   .btn:hover{ filter: brightness(1.06); }
   .btn:disabled{ cursor: not-allowed; filter: brightness(0.92); }
 
-  .btn-hero{
-    width: 100%;
-    max-width: 20rem;
-  }
+  .btn-hero{ width: 100%; max-width: 20rem; }
   @media (min-width: 480px){
     .btn-hero{ width: auto; }
   }
+  .btn-form{ width: 100%; }
 
-  .btn-form{
-    width: 100%;
-  }
-
-  /* Focus ring */
+  /* Focus ring. Gold-mid on the dark hero, deep gold on light ground. */
   :focus-visible{
-    outline: 3px solid var(--jgo-gold-mid);
+    outline: 3px solid var(--jgo-gold-deep);
     outline-offset: 2px;
   }
   input:focus, select:focus, textarea:focus, summary:focus, button:focus{
+    outline: 3px solid var(--jgo-gold-deep);
+    outline-offset: 2px;
+  }
+  .hero :focus-visible, .hero a:focus{
     outline: 3px solid var(--jgo-gold-mid);
     outline-offset: 2px;
   }
 
-  /* Hero */
+  /* ------------------------------------------------------------------
+     Hero. Stays the dark band so the click from the ad feels continuous.
+     ------------------------------------------------------------------ */
   .hero{
-    min-height: 100vh;
-    min-height: 100svh;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    padding: 1.5rem 0 3rem;
+    background: radial-gradient(ellipse 120% 90% at 50% 42%, #282828 0%, #161616 55%, #0A0A0A 100%);
+    background-color: var(--jgo-black);
+    color: var(--jgo-white);
+    padding: 1.5rem 0 clamp(2.5rem, 1.5rem + 4vw, 4rem);
   }
+  .hero h1, .hero h2, .hero h3{ color: var(--jgo-white); }
+  .hero .body-text{ color: var(--jgo-white); }
+  .hero .small-text{ color: var(--text-muted); }
+  .hero .eyebrow{ color: var(--jgo-gold-mid); }
 
   .hero-logo{
     height: 40px;
@@ -277,11 +327,7 @@
   @media (min-width: 900px){
     .hero-logo{ height: 52px; }
   }
-  .logo-img{
-    display: block;
-    height: 40px;
-    width: auto;
-  }
+  .logo-img{ display: block; height: 40px; width: auto; }
   @media (min-width: 900px){
     .logo-img{ height: 52px; }
   }
@@ -291,135 +337,53 @@
   .hero .hero-sub{ margin-bottom: 1.75rem; max-width: 38rem; }
   .hero .trust-line{ margin-top: 1rem; max-width: 26rem; }
 
-  /* Section 2 - problem */
-  .s-problem .eyebrow-spacer{ display: none; }
-  .s-problem h2{ margin-bottom: 1.25rem; }
-  .s-problem .intro{ margin-bottom: 2rem; }
-  .problem-list{
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .problem-list li{
-    margin-top: 1.75rem;
-  }
-  .problem-list li:first-child{ margin-top: 0; }
+  /* Hero portrait sits beside the headline from 900px.
+     Type-only until the real photograph is supplied. */
+  .hero-grid{ display: block; }
   @media (min-width: 900px){
-    .problem-list li{ margin-top: 2rem; }
-  }
-
-  /* Section 3 - file */
-  .s-file h2{ margin-bottom: 2rem; }
-  .cred-list{
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  .cred-list li{
-    margin-top: 1.75rem;
-  }
-  .cred-list li:first-child{ margin-top: 0; }
-  @media (min-width: 900px){
-    .cred-list li{ margin-top: 2rem; }
-  }
-  .cred-item{
-    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    font-size: clamp(1.5rem, 1.055rem + 1.9vw, 2.125rem);
-    color: var(--jgo-white);
-  }
-  .s-file .closing{ margin-top: 2.5rem; }
-
-  .s-file.has-portrait .file-grid{
-    display: grid;
-    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-    gap: 4rem;
-    align-items: start;
-  }
-
-  /* Section 4 - speak */
-  .s-speak h2{ margin-bottom: 1.25rem; }
-
-  /* Section 5 - FAQ */
-  .s-faq h2{ margin-bottom: 2rem; }
-  .faq-list{
-    border-top: 1px solid var(--line);
-  }
-  .faq-item{
-    border-bottom: 1px solid var(--line);
-  }
-  .faq-item summary{
-    cursor: pointer;
-    list-style: none;
-    padding: 1.25rem 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-  }
-  .faq-item summary::-webkit-details-marker{ display: none; }
-  .faq-item summary::after{
-    content: "+";
-    color: var(--text-muted);
-    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 700;
-    font-size: 1.25rem;
-    flex-shrink: 0;
-  }
-  .faq-item[open] summary::after{
-    content: "\2212";
-  }
-  .faq-item .faq-answer{
-    padding: 0 0 1.5rem;
-    max-width: 42rem;
-  }
-
-  /* Section 6 - donation */
-  .s-donation h2{ margin-bottom: 2.5rem; }
-  .donation-steps{
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    counter-reset: step;
-  }
-  .donation-steps li{
-    counter-increment: step;
-    margin-top: 2rem;
-  }
-  .donation-steps li:first-child{ margin-top: 0; }
-  .donation-steps li::before{
-    content: counter(step);
-    display: block;
-    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 800;
-    color: var(--jgo-gold-mid);
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-  }
-  .s-donation .footnote{ margin-top: 2.5rem; }
-  @media (min-width: 900px){
-    .donation-steps{
+    .hero.has-portrait .hero-grid{
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 2.5rem;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 3.5rem;
+      align-items: center;
     }
-    .donation-steps li{ margin-top: 0; }
+  }
+  .hero-portrait{ margin: 2rem 0 0; }
+  @media (min-width: 900px){
+    .hero-portrait{ margin: 0; }
+  }
+  .hero-portrait img{
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 2px;
+  }
+  .hero-portrait figcaption{
+    margin-top: 0.75rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
   }
 
-  /* Section 8 - form */
+  /* ------------------------------------------------------------------
+     Form sections. One directly under the hero, one before the footer.
+     ------------------------------------------------------------------ */
   .s-enquire{ scroll-margin-top: 1.5rem; }
-  #enquire{ scroll-margin-top: 1.5rem; }
   .s-enquire h2{ margin-bottom: 1.25rem; }
   .s-enquire .intro{ margin-bottom: 2rem; }
 
-  form{
-    max-width: 40rem;
-  }
+  .lead-form{ max-width: 40rem; }
 
-  .field{
-    margin-top: 1.5rem;
-  }
+  .field{ margin-top: 1.5rem; }
   .field:first-child{ margin-top: 0; }
+
+  @media (min-width: 640px){
+    .field-row{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    .field-row .field{ margin-top: 1.5rem; }
+  }
 
   label{
     display: block;
@@ -427,6 +391,7 @@
     font-weight: 600;
     font-size: clamp(0.8125rem, 0.77rem + 0.19vw, 0.875rem);
     margin-bottom: 0.5rem;
+    color: var(--ink);
   }
 
   input[type="text"],
@@ -435,19 +400,16 @@
   select,
   textarea{
     width: 100%;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid var(--line);
+    background: var(--ground);
+    border: 1px solid var(--line-light);
     border-radius: 2px;
-    color: var(--jgo-white);
+    color: var(--ink);
     font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     font-size: 1rem;
     padding: 0.875rem 1rem;
   }
 
-  textarea{
-    min-height: 6rem;
-    resize: vertical;
-  }
+  textarea{ min-height: 6rem; resize: vertical; }
 
   .checkbox-field{
     display: flex;
@@ -461,10 +423,7 @@
     flex-shrink: 0;
     margin-top: 0.15rem;
   }
-  .checkbox-field label{
-    margin-bottom: 0;
-    font-weight: 400;
-  }
+  .checkbox-field label{ margin-bottom: 0; font-weight: 400; }
 
   .hp{
     position: absolute;
@@ -476,48 +435,248 @@
 
   .form-error{
     margin-top: 1.5rem;
-    color: var(--jgo-gold-bright);
+    color: #8A2B14;
+    font-weight: 600;
   }
 
-  .form-actions{
-    margin-top: 2rem;
-  }
+  .form-actions{ margin-top: 2rem; }
 
   .form-success h3{ margin-bottom: 1rem; }
   .form-success p{ max-width: 40rem; }
 
+  /* Section 2 - problem */
+  .s-problem h2{ margin-bottom: 1.25rem; }
+  .s-problem .intro{ margin-bottom: 2rem; }
+  .problem-list{ list-style: none; margin: 0; padding: 0; }
+  .problem-list li{ margin-top: 1.75rem; }
+  .problem-list li:first-child{ margin-top: 0; }
+  @media (min-width: 900px){
+    .problem-list li{ margin-top: 2rem; }
+  }
+
+  /* Section 3 - file */
+  .s-file h2{ margin-bottom: 2rem; }
+  .cred-list{ list-style: none; margin: 0; padding: 0; }
+  .cred-list li{ margin-top: 1.75rem; }
+  .cred-list li:first-child{ margin-top: 0; }
+  @media (min-width: 900px){
+    .cred-list li{ margin-top: 2rem; }
+  }
+  .cred-item{
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 1.055rem + 1.9vw, 2.125rem);
+    color: var(--ink);
+  }
+  .s-file .closing{ margin-top: 2.5rem; }
+
+  /* Section 4 - speak */
+  .s-speak h2{ margin-bottom: 1.25rem; }
+
+  /* Section 5 - FAQ */
+  .s-faq h2{ margin-bottom: 2rem; }
+  .faq-list{ border-top: 1px solid var(--line-light); }
+  .faq-item{ border-bottom: 1px solid var(--line-light); }
+  .faq-item summary{
+    cursor: pointer;
+    list-style: none;
+    padding: 1.25rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .faq-item summary::-webkit-details-marker{ display: none; }
+  .faq-item summary::after{
+    content: "+";
+    color: var(--jgo-gold-deep);
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary::after{ content: "\2212"; }
+  .faq-item .faq-answer{ padding: 0 0 1.5rem; max-width: 42rem; }
+
+  /* Section 6 - donation */
+  .s-donation h2{ margin-bottom: 2.5rem; }
+  .donation-steps{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+  }
+  .donation-steps li{ counter-increment: step; margin-top: 2rem; }
+  .donation-steps li:first-child{ margin-top: 0; }
+  .donation-steps li::before{
+    content: counter(step);
+    display: block;
+    font-family: "Montserrat", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 800;
+    color: var(--jgo-gold-deep);
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .s-donation .footnote{ margin-top: 2.5rem; }
+  @media (min-width: 900px){
+    .donation-steps{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2.5rem;
+    }
+    .donation-steps li{ margin-top: 0; }
+  }
+
+  /* Sticky mobile CTA */
+  #sticky-cta{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    padding: 0.75rem clamp(1rem, 4vw, 1.5rem);
+    background: rgba(10,10,10,0.96);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    transform: translateY(0);
+    transition: transform 180ms ease;
+  }
+  #sticky-cta.is-hidden{ transform: translateY(110%); }
+  #sticky-cta .btn{ width: 100%; padding-block: 0.875rem; min-height: 52px; }
+  @media (prefers-reduced-motion: reduce){
+    #sticky-cta{ transition: none; }
+  }
+  @media (min-width: 900px){
+    #sticky-cta{ display: none; }
+  }
+
   /* Footer */
   .footer{
     padding-block: clamp(2.5rem, 2rem + 3vw, 3.5rem);
+    background: var(--ground-alt);
   }
   .footer .rule{ margin-bottom: clamp(2.5rem, 2rem + 3vw, 3.5rem); }
   .footer p{
     font-size: 13px;
-    color: var(--text-muted);
+    color: var(--ink-soft);
     max-width: 38rem;
   }
   .footer p + p{ margin-top: 1rem; }
-  .footer a{ color: var(--text-muted); }
+  .footer a{ color: var(--ink-soft); }
+
+  /* Keep the footer clear of the sticky bar on mobile. Must come AFTER the
+     .footer padding-block shorthand above or it is silently overridden. */
+  @media (max-width: 899px){
+    .footer{ padding-bottom: 7rem; }
+  }
 </style>
 </head>
 <body>
-<main>
 
 <section class="hero" id="hero">
-  <div class="wrap" style="width:100%;">
+  <div class="wrap">
     <div class="hero-logo" aria-hidden="true">
       <!-- LOGO: uncomment when assets/jgo-logo-white.png is supplied. Do not recreate, redraw or substitute this logo. -->
       <!-- <img src="assets/jgo-logo-white.png" alt="JGO Lending" class="logo-img"> -->
     </div>
-    <p class="eyebrow">VETERANS HOME LOANS · AUSTRALIA-WIDE</p>
-    <h1>The broker who <span class="gx">speaks DVA.</span></h1>
-    <p class="body-text hero-sub">Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.</p>
-    <a href="#enquire" class="btn btn-hero">Get Started</a>
-    <p class="small-text trust-line">Mention the Soldier On post when you enquire - $600 goes to Soldier On when your loan settles.</p>
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow">VETERANS HOME LOANS · AUSTRALIA-WIDE</p>
+        <h1>The broker who <span class="gx">speaks DVA.</span></h1>
+        <p class="body-text hero-sub">Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.</p>
+        <a href="#enquire" class="btn btn-hero">Get Started</a>
+        <p class="small-text trust-line">Mention the Soldier On post when you enquire - $600 goes to Soldier On when your loan settles.</p>
+      </div>
+      <!-- HERO PORTRAIT: uncomment this figure AND add class "has-portrait" to the
+           <section class="hero"> above, once assets/james-portrait.jpg is supplied.
+           Must be a real photograph of James. Do not substitute stock imagery. -->
+      <!--
+      <figure class="hero-portrait">
+        <img src="assets/james-portrait.jpg" alt="James O'Brien, JGO Lending">
+      </figure>
+      -->
+    </div>
   </div>
 </section>
 
-<section class="section s-problem" id="problem">
+<main>
+
+<!-- FORM, position 1 of 2. This is the anchor target for lower-funnel ads. -->
+<section class="section s-enquire" id="enquire">
+  <div class="wrap">
+    <h2>Five short questions. <span class="gx">About two minutes.</span></h2>
+    <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
+
+    <form class="lead-form" id="lead-form-top" method="post">
+      <div class="hp" aria-hidden="true">
+        <label for="company-t">Company</label>
+        <input type="text" id="company-t" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="name-t">Name</label>
+          <input type="text" id="name-t" name="name" required autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="email-t">Email</label>
+          <input type="email" id="email-t" name="email" required autocomplete="email">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="phone-t">Phone</label>
+        <input type="tel" id="phone-t" name="phone" required autocomplete="tel">
+      </div>
+
+      <div class="field">
+        <label for="goal-t">What are you looking to do?</label>
+        <select id="goal-t" name="goal" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="Buy my first home">Buy my first home</option>
+          <option value="Buy my next home">Buy my next home</option>
+          <option value="Refinance">Refinance</option>
+          <option value="Invest">Invest</option>
+          <option value="Not sure yet">Not sure yet</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="service_status-t">Your service status</label>
+        <select id="service_status-t" name="service_status" required>
+          <option value="" disabled selected>Select one</option>
+          <option value="Ex-serving">Ex-serving</option>
+          <option value="Currently serving">Currently serving</option>
+          <option value="Partner of a veteran">Partner of a veteran</option>
+          <option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="notes-t">Anything we should know?</label>
+        <textarea id="notes-t" name="notes"></textarea>
+      </div>
+
+      <div class="checkbox-field">
+        <input type="checkbox" id="soldier_on-t" name="soldier_on">
+        <label for="soldier_on-t">I saw the Soldier On post</label>
+      </div>
+
+      <p class="form-error small-text" role="alert" hidden>That didn't send. Try again, or email james.obrien@jgolending.com.au.</p>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-form submit-btn">Get Started</button>
+      </div>
+    </form>
+
+    <div class="form-success" hidden>
+      <h3 tabindex="-1">Thanks - that's the hard part done.</h3>
+      <p class="body-text">James will be in touch shortly. If you mentioned the Soldier On post, $600 goes to them when your loan settles.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt s-problem" id="problem">
   <div class="wrap">
     <h2>Your income isn't the problem. <span class="gx">The translation is.</span></h2>
     <p class="body-text measure intro">Most lenders don't see many veteran files. That unfamiliarity can read as risk on a loan application, and it isn't.</p>
@@ -529,53 +688,37 @@
   </div>
 </section>
 
-<div class="rule" aria-hidden="true"></div>
-
 <section class="section s-file" id="file">
   <div class="wrap">
-    <div class="file-grid">
-      <div>
-        <h2>Four careers. <span class="gx">One loan file.</span></h2>
-        <ul class="cred-list">
-          <li>
-            <div class="cred-rule" aria-hidden="true"></div>
-            <div class="cred-item">Army veteran</div>
-          </li>
-          <li>
-            <div class="cred-rule" aria-hidden="true"></div>
-            <div class="cred-item">Ex-Westpac, lender side</div>
-          </li>
-          <li>
-            <div class="cred-rule" aria-hidden="true"></div>
-            <div class="cred-item">Bachelor of Laws</div>
-          </li>
-          <li>
-            <div class="cred-rule" aria-hidden="true"></div>
-            <div class="cred-item">Built 17 apartments</div>
-          </li>
-        </ul>
-        <p class="body-text measure closing">Most brokers have seen one side of a loan. James O'Brien has seen all of them - as a veteran who has lived on ADF pay, as a Westpac lender who assessed files from the other side of the desk, as a law graduate who reads the fine print for sport, and as a developer who has built with borrowed money.</p>
-      </div>
-      <!-- PORTRAIT: uncomment and add class "has-portrait" to #file when assets/james-portrait.jpg is supplied. Do not substitute stock imagery. -->
-      <!--
-      <figure class="portrait">
-        <img src="assets/james-portrait.jpg" alt="James O'Brien">
-      </figure>
-      -->
-    </div>
+    <h2>Four careers. <span class="gx">One loan file.</span></h2>
+    <ul class="cred-list">
+      <li>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <div class="cred-item">Army veteran</div>
+      </li>
+      <li>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <div class="cred-item">Ex-Westpac, lender side</div>
+      </li>
+      <li>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <div class="cred-item">Bachelor of Laws</div>
+      </li>
+      <li>
+        <div class="cred-rule" aria-hidden="true"></div>
+        <div class="cred-item">Built 17 apartments</div>
+      </li>
+    </ul>
+    <p class="body-text measure closing">Most brokers have seen one side of a loan. James O'Brien has seen all of them - as a veteran who has lived on ADF pay, as a Westpac lender who assessed files from the other side of the desk, as a law graduate who reads the fine print for sport, and as a developer who has built with borrowed money.</p>
   </div>
 </section>
 
-<div class="rule" aria-hidden="true"></div>
-
-<section class="section s-speak" id="speak">
+<section class="section section-alt s-speak" id="speak">
   <div class="wrap">
     <h2><span class="gx">Fluent in DVA.</span></h2>
     <p class="body-text measure" style="margin-top:1.25rem;">Incapacity payments. CSC pensions. DHOAS. Veteran-owned, and accredited with a DHOAS provider - so the acronyms don't need decoding before the conversation starts.</p>
   </div>
 </section>
-
-<div class="rule" aria-hidden="true"></div>
 
 <section class="section s-faq" id="faq">
   <div class="wrap">
@@ -601,9 +744,7 @@
   </div>
 </section>
 
-<div class="rule" aria-hidden="true"></div>
-
-<section class="section s-donation" id="donation">
+<section class="section section-alt s-donation" id="donation">
   <div class="wrap">
     <h2>Mention the post. <span class="gx">$600 to Soldier On.</span></h2>
     <ol class="donation-steps">
@@ -615,52 +756,66 @@
   </div>
 </section>
 
-<div class="rule" aria-hidden="true"></div>
+<!-- TESTIMONIALS: enable when real, attributable veteran testimonials are supplied.
 
-<!-- TESTIMONIALS: enable when real, attributable veteran testimonials are supplied -->
-<!--
-<section id="testimonials" class="section s-testimonials">
+     To switch on: delete this comment wrapper and replace each quote, name and
+     suburb with a real, attributable testimonial that the person has agreed to
+     have published. Add or remove <figure> blocks to match how many you have.
+
+     Do not write placeholder quotes, do not paraphrase something someone said
+     verbally, and do not add star ratings or review counts unless they are real
+     and verifiable. Fabricated testimonials breach Australian Consumer Law.
+
+<section class="section s-testimonials" id="testimonials">
   <div class="wrap">
-    <h2>What veterans say</h2>
+    <h2>What veterans <span class="gx">say</span></h2>
     <div class="testimonial-list">
       <figure class="testimonial-item">
-        <blockquote class="body-text"></blockquote>
-        <figcaption class="small-text"></figcaption>
+        <blockquote class="body-text">QUOTE</blockquote>
+        <figcaption class="small-text">NAME, SUBURB</figcaption>
+      </figure>
+      <figure class="testimonial-item">
+        <blockquote class="body-text">QUOTE</blockquote>
+        <figcaption class="small-text">NAME, SUBURB</figcaption>
       </figure>
     </div>
   </div>
 </section>
 -->
 
-<section class="section s-enquire" id="enquire">
+<!-- FORM, position 2 of 2. Same fields, same handler, for readers who scroll. -->
+<section class="section s-enquire" id="enquire-bottom">
   <div class="wrap">
+    <div class="rule" aria-hidden="true" style="margin-bottom:clamp(2.5rem,2rem + 3vw,3.5rem);"></div>
     <h2>Five short questions. <span class="gx">About two minutes.</span></h2>
     <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
 
-    <form id="lead-form" method="post">
+    <form class="lead-form" id="lead-form-bottom" method="post">
       <div class="hp" aria-hidden="true">
-        <label for="company">Company</label>
-        <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+        <label for="company-b">Company</label>
+        <input type="text" id="company-b" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="name-b">Name</label>
+          <input type="text" id="name-b" name="name" required autocomplete="name">
+        </div>
+
+        <div class="field">
+          <label for="email-b">Email</label>
+          <input type="email" id="email-b" name="email" required autocomplete="email">
+        </div>
       </div>
 
       <div class="field">
-        <label for="name">Name</label>
-        <input type="text" id="name" name="name" required autocomplete="name">
+        <label for="phone-b">Phone</label>
+        <input type="tel" id="phone-b" name="phone" required autocomplete="tel">
       </div>
 
       <div class="field">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required autocomplete="email">
-      </div>
-
-      <div class="field">
-        <label for="phone">Phone</label>
-        <input type="tel" id="phone" name="phone" required autocomplete="tel">
-      </div>
-
-      <div class="field">
-        <label for="goal">What are you looking to do?</label>
-        <select id="goal" name="goal" required>
+        <label for="goal-b">What are you looking to do?</label>
+        <select id="goal-b" name="goal" required>
           <option value="" disabled selected>Select one</option>
           <option value="Buy my first home">Buy my first home</option>
           <option value="Buy my next home">Buy my next home</option>
@@ -671,8 +826,8 @@
       </div>
 
       <div class="field">
-        <label for="service_status">Your service status</label>
-        <select id="service_status" name="service_status" required>
+        <label for="service_status-b">Your service status</label>
+        <select id="service_status-b" name="service_status" required>
           <option value="" disabled selected>Select one</option>
           <option value="Ex-serving">Ex-serving</option>
           <option value="Currently serving">Currently serving</option>
@@ -682,19 +837,19 @@
       </div>
 
       <div class="field">
-        <label for="notes">Anything we should know?</label>
-        <textarea id="notes" name="notes"></textarea>
+        <label for="notes-b">Anything we should know?</label>
+        <textarea id="notes-b" name="notes"></textarea>
       </div>
 
       <div class="checkbox-field">
-        <input type="checkbox" id="soldier_on" name="soldier_on">
-        <label for="soldier_on">I saw the Soldier On post</label>
+        <input type="checkbox" id="soldier_on-b" name="soldier_on">
+        <label for="soldier_on-b">I saw the Soldier On post</label>
       </div>
 
-      <p class="form-error small-text" role="alert" hidden>That didn't send. Try again, or email [EMAIL - client to provide].</p>
+      <p class="form-error small-text" role="alert" hidden>That didn't send. Try again, or email james.obrien@jgolending.com.au.</p>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-form" id="submit-btn">Get Started</button>
+        <button type="submit" class="btn btn-form submit-btn">Get Started</button>
       </div>
     </form>
 
@@ -709,14 +864,17 @@
 
 <footer class="footer">
   <div class="wrap">
-    <div class="rule" aria-hidden="true"></div>
     <p>JGO Lending &middot; James O'Brien<br>
-    Credit Representative Number [CR NUMBER - client to provide]<br>
+    Credit Representative Number 578547<br>
     of Australian Finance Group Ltd, Australian Credit Licence 389087</p>
     <p>The information on this page is general in nature and does not take your objectives, financial situation or needs into account. All applications are subject to lender assessment, and approval is not guaranteed.</p>
     <p><a href="[Privacy Policy link - client to provide URL]">[Privacy Policy link - client to provide URL]</a></p>
   </div>
 </footer>
+
+<div id="sticky-cta">
+  <a href="#enquire" class="btn">Get Started</a>
+</div>
 
 </body>
 </html>
