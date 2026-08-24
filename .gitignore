@@ -10,6 +10,7 @@ jgo-config.php
 veterans/assets/*
 !veterans/assets/.gitkeep
 !veterans/assets/james-portrait.jpg
+!veterans/assets/soldier-on-logo.png
 
 # OS and editor noise
 .DS_Store
