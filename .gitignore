@@ -11,6 +11,7 @@ veterans/assets/*
 !veterans/assets/.gitkeep
 !veterans/assets/james-portrait.jpg
 !veterans/assets/soldier-on-logo.png
+!veterans/assets/jgo-logo-white.png
 
 # OS and editor noise
 .DS_Store

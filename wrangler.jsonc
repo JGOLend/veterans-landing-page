@@ -10,5 +10,13 @@
   },
   "assets": {
     "directory": "veterans"
-  }
+  },
+  // The zone is already on this Cloudflare account, so deploys provision the
+  // custom domain (DNS record + certificate) automatically.
+  "routes": [
+    {
+      "pattern": "veterans.jgolending.com.au",
+      "custom_domain": true
+    }
+  ]
 }
