@@ -25,7 +25,7 @@
     fbq('track', 'PageView');
   }
 
-  const FORM_ENDPOINT = "send.php";
+  const FORM_ENDPOINT = "/api/send"; // handled by src/worker.js on Cloudflare
 
   /* Both guards are module scope, not storage, and are shared across the two
      form instances. FormStart fires once per page view no matter which form

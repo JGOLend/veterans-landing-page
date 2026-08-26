@@ -1,0 +1,30 @@
+{
+  // Cloudflare Worker config. The name matches the Worker the first deploy
+  // created, so pushes to main update the same Worker and URL.
+  "name": "veterans-landing-page",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-08-25",
+  "observability": {
+    "enabled": true
+  },
+  // The static page. GET/HEAD requests for existing files are served from
+  // here; everything else (including POST /api/send) reaches the Worker.
+  "assets": {
+    "directory": "veterans",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "RATE_LIMIT",
+      "id": "6507179217fa4695b2d31e412567dee5"
+    }
+  ],
+  "vars": {
+    // MAIL_FROM must be on a domain verified in Resend or every send fails.
+    "MAIL_FROM": "JGO Lending <enquiries@jgolending.com.au>",
+    "MAIL_TO": "james.obrien@jgolending.com.au"
+  }
+  // RESEND_API_KEY is a secret: set it in the Cloudflare dashboard under
+  // Workers & Pages > veterans-landing-page > Settings > Variables and
+  // Secrets, or with: npx wrangler secret put RESEND_API_KEY
+}
