@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The broker who speaks DVA. | JGO Lending</title>
-<meta name="description" content="Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.">
+<title>Home loans by someone who's served | JGO Lending</title>
+<meta name="description" content="Veteran-owned and accredited with a DHOAS provider. Home loans for current and ex-serving ADF members: DHOAS, rent allowance, LMI waivers, incapacity payments, CSC pensions and DVA.">
 <meta name="theme-color" content="#0A0A0A">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -596,6 +596,20 @@
   @media (max-width: 899px){
     .footer{ padding-bottom: 7rem; }
   }
+  /* Serving section */
+  .s-serving .eyebrow, .s-problem .eyebrow{ margin-bottom: 0.75rem; }
+  .s-serving h2{ margin-bottom: 1.25rem; }
+  .s-serving .intro{ margin-bottom: 2.5rem; }
+  .serve-list{ list-style: none; margin: 0; padding: 0; display: grid; gap: 2rem; }
+  @media (min-width: 900px){ .serve-list{ grid-template-columns: 1fr 1fr; gap: 2.5rem 3rem; } }
+  .serve-list li{ border-style: solid; border-width: 3px 0 0; border-image: linear-gradient(90deg, #C9932F 0%, #9D722D 100%) 1; padding-top: 1.25rem; }
+  .serve-list h3{ margin-bottom: 0.5rem; }
+  .btn-section{ margin-top: 2.5rem; }
+  .s-problem .closing-note{ margin-top: 2rem; font-weight: 600; }
+  .hero-paths{ margin-top: 1.25rem; }
+  .hero-paths a{ color: var(--jgo-gold-mid); font-weight: 600; }
+  section[id]{ scroll-margin-top: 1.5rem; }
+  .h1l{ display: block; }
 </style>
 </head>
 <body>
@@ -607,10 +621,11 @@
     </div>
     <div class="hero-grid">
       <div>
-        <p class="eyebrow">VETERANS HOME LOANS · AUSTRALIA-WIDE</p>
-        <h1>The broker who <span class="gx">speaks DVA.</span></h1>
-        <p class="body-text hero-sub">Veteran-owned and accredited with a DHOAS provider. Incapacity payments, CSC pensions and DVA entitlements are the day job here, not the exception.</p>
+        <p class="eyebrow">SERVING AND EX&#8209;SERVING ADF</p>
+        <h1><span class="h1l">Home loans</span> <span class="h1l">by someone</span> <span class="h1l gx">who's served.</span></h1>
+        <p class="body-text hero-sub">Veteran-owned and accredited with a DHOAS provider. Still serving: DHOAS, rent allowance and LMI waivers. Already out: incapacity payments, CSC pensions and DVA. Both are the day job here, not the exception.</p>
         <a href="#enquire" class="btn btn-hero">Get Started</a>
+        <p class="small-text hero-paths">Still serving? <a href="#serving">See what's on the table</a> &middot; Ex-serving? <a href="#problem">Start here</a></p>
       </div>
       <figure class="hero-portrait">
         <img src="assets/james-portrait.jpg" alt="James O'Brien, JGO Lending" width="1080" height="1350">
@@ -624,8 +639,8 @@
 <!-- FORM, position 1 of 2. This is the anchor target for lower-funnel ads. -->
 <section class="section s-enquire" id="enquire">
   <div class="wrap">
-    <h2>Five short questions. <span class="gx">About two minutes.</span></h2>
-    <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
+    <h2>A few short questions. <span class="gx">About two minutes.</span></h2>
+    <p class="body-text intro">Serving or ex-serving, tell us where you're at and James will come back to you.</p>
 
     <form class="lead-form" id="lead-form-top" method="post">
       <div class="hp" aria-hidden="true">
@@ -688,24 +703,41 @@
 
     <div class="form-success" hidden>
       <h3 tabindex="-1">Thanks - that's the hard part done.</h3>
-      <p class="body-text">James will be in touch shortly. If you mentioned the Soldier On post, $600 goes to them when your loan settles.</p>
+      <p class="body-text">James will be in touch shortly.</p>
     </div>
   </div>
 </section>
 
-<section class="section section-alt s-problem" id="problem">
+<section class="section section-alt s-serving" id="serving">
   <div class="wrap">
+    <p class="eyebrow">Currently serving</p>
+    <h2>Still serving? <span class="gx">Use what you've earned.</span></h2>
+    <p class="body-text measure intro">Defence pay is steady income, and serving members can have options most civilian buyers don't. They only help if someone puts them on the file properly.</p>
+    <ul class="serve-list">
+      <li><h3>DHOAS</h3><p class="body-text">A monthly subsidy on part of your home loan interest, for eligible members once you've built up the qualifying service. The longer you've served, the higher the tier. James is accredited with a DHOAS provider.</p></li>
+      <li><h3>LMI waivers</h3><p class="body-text">Some lenders may waive lenders mortgage insurance for eligible ADF members. On the right loan, that can mean buying sooner without paying LMI on top. Criteria differ from lender to lender.</p></li>
+      <li><h3>Rent allowance and the rest of your payslip</h3><p class="body-text">Service allowance, rent allowance, posting allowances. Not every lender counts them the same way, so which lender you go to matters as much as what you earn.</p></li>
+      <li><h3>Postings</h3><p class="body-text">Posting coming up, or buying somewhere you're not living yet? Say so early. It changes which lender and which loan structure make sense.</p></li>
+    </ul>
+    <a href="#enquire" class="btn btn-section">Talk to James</a>
+  </div>
+</section>
+
+<section class="section s-problem" id="problem">
+  <div class="wrap">
+    <p class="eyebrow">Already out of uniform</p>
     <h2>Your income isn't the problem. <span class="gx">The translation is.</span></h2>
     <p class="body-text measure intro">Most lenders don't see many veteran files. That unfamiliarity can read as risk on a loan application, and it isn't.</p>
     <ul class="problem-list measure">
       <li class="body-text">Incapacity payments explained as income, not as a question mark.</li>
       <li class="body-text">CSC pensions presented the way an assessor needs to see them.</li>
-      <li class="body-text">DVA entitlements treated as what they are - income.</li>
+      <li class="body-text">DVA entitlements presented properly, not glossed over.</li>
     </ul>
+    <p class="body-text measure closing-note">Served after 1 July 2008? You may still be eligible for DHOAS, however long ago you discharged. Worth checking before you assume it's gone.</p>
   </div>
 </section>
 
-<section class="section s-file" id="file">
+<section class="section section-alt s-file" id="file">
   <div class="wrap">
     <h2>Four careers. <span class="gx">One loan file.</span></h2>
     <ul class="cred-list">
@@ -730,14 +762,14 @@
   </div>
 </section>
 
-<section class="section section-alt s-speak" id="speak">
+<section class="section s-speak" id="speak">
   <div class="wrap">
-    <h2><span class="gx">Fluent in DVA.</span></h2>
-    <p class="body-text measure" style="margin-top:1.25rem;">Incapacity payments. CSC pensions. DHOAS. Veteran-owned, and accredited with a DHOAS provider - so the acronyms don't need decoding before the conversation starts.</p>
+    <h2><span class="gx">Fluent in Defence and DVA.</span></h2>
+    <p class="body-text measure" style="margin-top:1.25rem;">RA. DHOAS. LMI waivers. Incapacity payments. CSC pensions. Veteran-owned, and accredited with a DHOAS provider - so the acronyms don't need decoding before the conversation starts.</p>
   </div>
 </section>
 
-<section class="section s-faq" id="faq">
+<section class="section section-alt s-faq" id="faq">
   <div class="wrap">
     <h2>Questions people <span class="gx">actually ask</span></h2>
     <div class="faq-list">
@@ -746,34 +778,22 @@
         <p class="body-text faq-answer">Plenty of veterans assume the answer is no before anyone has looked. The honest answer is that it depends on the file - which is why the first conversation is about reading the file. No promises before the numbers, and no assumptions either.</p>
       </details>
       <details class="faq-item">
-        <summary><h3 style="display:inline;">What does it cost me?</h3></summary>
-        <p class="body-text faq-answer">Nothing for the conversation. Brokers are generally paid by the lender on settlement, and anything that applies to your situation is explained in writing before you commit to anything.</p>
+        <summary><h3 style="display:inline;">I'm still serving. Can a broker help with DHOAS?</h3></summary>
+        <p class="body-text faq-answer">Yes. DHOAS loans come through the scheme's approved home loan providers, and James is accredited with one of them. You'll need your Subsidy Certificate from DVA first, and we can talk you through that on the first call.</p>
       </details>
       <details class="faq-item">
-        <summary><h3 style="display:inline;">How does the Soldier On donation work?</h3></summary>
-        <p class="body-text faq-answer">It's tied to the ad, not to every loan. If you saw the Soldier On post and mention it when you enquire, JGO Lending donates $600 to Soldier On when your loan settles. It comes from our side, never from your pocket, and nothing is priced into your loan to cover it.</p>
+        <summary><h3 style="display:inline;">Do I need a 20% deposit?</h3></summary>
+        <p class="body-text faq-answer">Not always. Some lenders may waive LMI for eligible ADF members, and other options can apply depending on your situation. It depends on the file and the lender, so no promises before the numbers.</p>
+      </details>
+      <details class="faq-item">
+        <summary><h3 style="display:inline;">What does it cost me?</h3></summary>
+        <p class="body-text faq-answer">Nothing for the conversation. Brokers are generally paid by the lender on settlement, and anything that applies to your situation is explained in writing before you commit to anything.</p>
       </details>
       <details class="faq-item">
         <summary><h3 style="display:inline;">What happens after I send this?</h3></summary>
         <p class="body-text faq-answer">James calls you at a time that suits. You talk through what you're working with and whether the numbers stack up. If it isn't the right time, he'll say so.</p>
       </details>
     </div>
-  </div>
-</section>
-
-<section class="section section-alt s-donation" id="donation">
-  <div class="wrap">
-    <h2>Mention the post. <span class="gx">$600 to Soldier On.</span></h2>
-    <ol class="donation-steps">
-      <li><h3>You saw the ad</h3></li>
-      <li><h3>Mention it when you enquire</h3></li>
-      <li><h3>$600 to Soldier On when your loan settles</h3></li>
-    </ol>
-    <p class="small-text footnote">From our side. Never from your pocket.</p>
-    <!-- Soldier On "proud supporter" lockup from their community fundraiser
-         pack, used unaltered under JGO's registered-fundraiser status.
-         Client confirmed registration 2026-08-25. Do not recolour or crop. -->
-    <img src="assets/soldier-on-logo.png" alt="Proud supporter of Soldier On" class="so-logo" width="551" height="355" loading="lazy">
   </div>
 </section>
 
@@ -808,8 +828,8 @@
 <section class="section s-enquire" id="enquire-bottom">
   <div class="wrap">
     <div class="rule" aria-hidden="true" style="margin-bottom:clamp(2.5rem,2rem + 3vw,3.5rem);"></div>
-    <h2>Five short questions. <span class="gx">About two minutes.</span></h2>
-    <p class="body-text intro">Tell us where you're at and James will come back to you.</p>
+    <h2>A few short questions. <span class="gx">About two minutes.</span></h2>
+    <p class="body-text intro">Serving or ex-serving, tell us where you're at and James will come back to you.</p>
 
     <form class="lead-form" id="lead-form-bottom" method="post">
       <div class="hp" aria-hidden="true">
@@ -872,7 +892,7 @@
 
     <div class="form-success" hidden>
       <h3 tabindex="-1">Thanks - that's the hard part done.</h3>
-      <p class="body-text">James will be in touch shortly. If you mentioned the Soldier On post, $600 goes to them when your loan settles.</p>
+      <p class="body-text">James will be in touch shortly.</p>
     </div>
   </div>
 </section>
@@ -884,7 +904,7 @@
     <p>JGO Lending Pty Ltd &middot; James O'Brien<br>
     Credit Representative Number 578547<br>
     of Australian Finance Group Ltd, Australian Credit Licence 389087</p>
-    <p>The information on this page is general in nature and does not take your objectives, financial situation or needs into account. All applications are subject to lender assessment, and approval is not guaranteed.</p>
+    <p>The information on this page is general in nature and does not take your objectives, financial situation or needs into account. All applications are subject to lender assessment, and approval is not guaranteed. We work from a panel of lenders, not the whole market.</p>
     <p><a href="https://afgonline.com.au/privacy-policy/">Privacy Policy (Australian Finance Group Ltd)</a></p>
   </div>
 </footer>
